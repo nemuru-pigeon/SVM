@@ -1,8 +1,8 @@
-function [w, b] = svm_gd(X, y, lambda, learning_rate, num_iters)
+function [w, b] = svm_gd(X, y, lambda, t, num_iters)
     % X: 输入数据矩阵，每行是一个样本
     % y: 标签向量，元素为 -1 或 1
-    % lambda: 正则化参数，对w部分用或对约束部分用
-    % learning_rate: 学习率
+    % lambda: 正则化参数
+    % t: 步长
     % num_iters: 迭代次数
 
     [m, n] = size(X);
@@ -28,7 +28,7 @@ function [w, b] = svm_gd(X, y, lambda, learning_rate, num_iters)
         end
         
         % 更新参数
-        w = w - learning_rate * w_grad;
-        b = b - learning_rate * b_grad;
+        w = w - t * w_grad;
+        b = b - t * b_grad;
     end
 end
