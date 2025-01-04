@@ -1,4 +1,4 @@
-function [w, b, iter] = svm_bls(X, y, lambda, num_iters, alpha, beta, t0)
+function [w, b, iter, w_list, b_list, errors] = svm_bls(X, y, lambda, num_iters, alpha, beta, t0)
     % X: 输入数据矩阵，每行是一个样本
     % y: 标签向量，元素为 -1 或 1
     % lambda: 正则化参数
@@ -10,6 +10,9 @@ function [w, b, iter] = svm_bls(X, y, lambda, num_iters, alpha, beta, t0)
     [m, n] = size(X);
     w = zeros(n, 1);
     b = 0;
+    w_list = [];
+    b_list = [];
+    errors = zeros(num_iters, 1);
 
     for iter = 1:num_iters
         % 遍历所有样本
@@ -58,6 +61,12 @@ function [w, b, iter] = svm_bls(X, y, lambda, num_iters, alpha, beta, t0)
             % 更新权重和截距
             w = w_new;
             b = b_new;
+            w_list = [w_list, w_new];
+            b_list = [b_list, b_new];
+            
         end
+        hinge_loss = sum(max(0, 1 - y .* (X * w + b))) / m;
+        regularization = 0.5 * lambda * norm(w)^2; 
+        errors(iter) = hinge_loss + regularization; 
     end
 end
