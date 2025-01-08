@@ -1,4 +1,4 @@
-function [w, b, alpha, w_list, b_list, errors] = svm_lag(X, y, eta, num_iters)
+function [w, b, alpha, w_list, b_list, acc] = svm_lag(X, y, X_test, y_test, eta, num_iters)
     % 输入：
     % X: 输入数据矩阵，每行是一个样本
     % y: 标签向量，取值为 -1 或 1
@@ -11,7 +11,7 @@ function [w, b, alpha, w_list, b_list, errors] = svm_lag(X, y, eta, num_iters)
     w_list = [];
     b_list = [];
     alpha = zeros(m, 1); % 初始化拉格朗日乘子
-    errors = zeros(num_iters, 1); % 初始化误差记录
+    acc = zeros(num_iters, 1); % 初始化误差记录
 
     for iter = 1:num_iters
         % 动态调整学习率（可选）
@@ -32,8 +32,7 @@ function [w, b, alpha, w_list, b_list, errors] = svm_lag(X, y, eta, num_iters)
         b_list = [b_list, b];
         
         % 计算误差（hinge loss + regularization term）
-        hinge_loss = max(0, 1 - y .* (X * w + b)); % hinge loss for all samples
-        regularization = 0.5 * norm(w)^2; % 正则化项
-        errors(iter) = sum(hinge_loss) + regularization; % 总误差
+        y_pre = svm_predict(w, b, X_test);
+        acc(iter) = svm_report(y_test, y_pre);
     end
 end
