@@ -50,7 +50,7 @@ function [w, b, iter] = svm_bls(X, y, lambda, num_iters, alpha, beta, t0)
                 % 减小步长
                 t = beta * t;
                 if t < t0
-                    disp(t);
+                    iter_total = (iter - 1) * m + i;
                     return;
                 end
             end
