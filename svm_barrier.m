@@ -21,6 +21,7 @@ for iter = 1:num_iters
     [w, b, func_iter] = svm_centering(X, y, w, b, t, num_iters, step_size, 1e-5);
     disp(w);
     disp(b);
+    plot_svm_decision_boundary(X, y, w, b);
     disp('------------');
     total_iter = total_iter + func_iter;
 
