@@ -1,51 +1,51 @@
-function [w, b, alpha, acc] = svm_dual_gd(X, y, X_test, y_test, eta, num_iters)
-    % 硬间隔 SVM 对偶问题的投影梯度法实现
-    % X: 输入数据矩阵，每行是一个样本
-    % y: 标签向量 (-1 或 1)
-    % X_test: 测试集数据
-    % y_test: 测试集标签
-    % eta: 初始学习率
-    % num_iters: 最大迭代次数
+function [w, b, acc] = svm_dual_gd(X, y, X_test, y_test, eta, num_iters)
+    % Implementation of the projected gradient method for the dual problem of hard-margin SVM
+    % X: Input data matrix, where each row is a sample
+    % y: Label vector (-1 or 1)
+    % X_test: Test set data
+    % y_test: Test set labels
+    % eta: Initial learning rate
+    % num_iters: Maximum number of iterations
 
-    [m, n] = size(X);        % 样本数量 m 和特征数量 n
-    alpha = zeros(m, 1);     % 初始化拉格朗日乘子
-    acc = zeros(num_iters, 1); % 存储测试集准确率
+    [m, n] = size(X);        % Number of samples (m) and features (n)
+    lambda = zeros(m, 1);     % Initialize Lagrange multipliers
+    acc = zeros(num_iters, 1); % Array to store accuracy on the test set
 
     for iter = 1:num_iters
-        % 学习率衰减
+        % Decaying learning rate
         eta_t = eta / (1 + iter / 10);
 
-        % 对每个 alpha_i 更新
+        % Update each lambda_i
         for i = 1:m
-            % 计算梯度
-            grad = 1 - y(i) * sum(alpha .* y .* (X * X(i, :)'));
+            % Compute the gradient
+            grad = 1 - y(i) * sum(lambda .* y .* (X * X(i, :)'));
 
-            % 梯度更新
-            alpha(i) = alpha(i) + eta_t * grad;
+            % Gradient update
+            lambda(i) = lambda(i) + eta_t * grad;
 
-            % 投影到 [0, +∞)
-            alpha(i) = max(0, alpha(i));
+            % Project onto [0, +∞)
+            lambda(i) = max(0, lambda(i));
         end
 
-        % 修正以满足 \sum alpha_i y_i = 0
-        delta = sum(alpha .* y);
-        alpha = alpha - y * (delta / sum(y.^2));
+        % Adjustment to satisfy the constraint: sum(lambda_i * y_i) = 0
+        delta = sum(lambda .* y);
+        lambda = lambda - y * (delta / sum(y.^2));
 
-        % 更新 w
-        w = sum((alpha .* y) .* X, 1)'; % w = sum(alpha_i * y_i * x_i)
+        % Update w
+        w = sum((lambda .* y) .* X, 1)'; % w = sum(lambda_i * y_i * x_i)
 
-        % 更新偏置 b
-        support_indices = find(alpha > 1e-5); % 支持向量
+        % Update bias term b
+        support_indices = find(lambda > 1e-5); % Identify support vectors
         if ~isempty(support_indices)
             b = mean(y(support_indices) - X(support_indices, :) * w);
         else
-            b = 0; % 理论上不应该发生
+            b = 0; % This should not occur in theory
         end
 
-        % 预测测试集
+        % Predict on the test set
         y_pre = svm_predict(w, b, X_test);
 
-        % 记录测试集准确率
+        % Record test set accuracy
         acc(iter) = svm_report(y_test, y_pre);
     end
 end

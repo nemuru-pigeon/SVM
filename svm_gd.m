@@ -1,4 +1,4 @@
-function [w, b, w_list, b_list, errors] = svm_gd(X, y, lambda, t, num_iters)
+function [w, b, acc] = svm_gd(X, y, X_test, y_test, lambda, t, num_iters)
     % X: 输入数据矩阵，每行是一个样本
     % y: 标签向量，元素为 -1 或 1
     % lambda: 正则化参数
@@ -10,7 +10,7 @@ function [w, b, w_list, b_list, errors] = svm_gd(X, y, lambda, t, num_iters)
     b = 0;
     w_list = [];
     b_list = [];
-    errors = zeros(num_iters, 1); % 用于记录每次迭代的误差
+    acc = zeros(num_iters, 1); % 用于记录每次迭代的误差
 
     for iter = 1:num_iters
         % 随机选择一个样本
@@ -36,9 +36,7 @@ function [w, b, w_list, b_list, errors] = svm_gd(X, y, lambda, t, num_iters)
         w_list = [w_list, w];
         b_list = [b_list, b];
         
-        % 计算误差（Hinge Loss + Regularization Term）
-        hinge_loss = max(0, 1 - y .* (X * w + b)); % Hinge Loss for all samples
-        regularization = 0.5 * lambda * norm(w)^2; % Regularization Term
-        errors(iter) = sum(hinge_loss) + regularization; % Total Error
+        y_pre = svm_predict(w, b, X_test);
+        acc(iter) = svm_report(y_test, y_pre);
     end
 end
