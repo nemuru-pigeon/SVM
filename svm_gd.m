@@ -1,42 +1,49 @@
 function [w, b, acc] = svm_gd(X, y, X_test, y_test, lambda, t, num_iters)
-    % X: 输入数据矩阵，每行是一个样本
-    % y: 标签向量，元素为 -1 或 1
-    % lambda: 正则化参数
-    % t: 步长
-    % num_iters: 迭代次数
+    % This function trains a linear SVM using stochastic gradient descent (SGD).
+    % Inputs:
+    %   X: Input data matrix, where each row represents a sample.
+    %   y: Label vector, with elements being -1 or 1.
+    %   X_test: Test data matrix for evaluation.
+    %   y_test: Test label vector for evaluation.
+    %   lambda: Regularization parameter.
+    %   t: Initial learning rate (step size).
+    %   num_iters: Number of iterations for training.
+    %
+    % Outputs:
+    %   w: Optimized weight vector.
+    %   b: Optimized bias term.
+    %   acc: Accuracy recorded after each iteration on the test set.
 
-    [m, n] = size(X);
-    w = zeros(n, 1);
-    b = 0;
-    w_list = [];
-    b_list = [];
-    acc = zeros(num_iters, 1); % 用于记录每次迭代的误差
+    [m, n] = size(X); % m: number of samples, n: number of features.
+    w = zeros(n, 1);  % Initialize weight vector.
+    b = 0;            % Initialize bias term.
+    acc = zeros(num_iters, 1); % Initialize accuracy tracking.
 
     for iter = 1:num_iters
-        % 随机选择一个样本
-        idx = randi(m);
-        xi = X(idx, :)';
-        yi = y(idx);
-        
-        % 检查是否满足条件
-        condition = yi * (w' * xi + b) < 1;
-        
-        % 计算梯度
-        if condition
-            w_grad = lambda * w - yi * xi;
-            b_grad = -yi;
-        else
-            w_grad = lambda * w;
-            b_grad = 0;
+        % Optional: Dynamically adjust the learning rate with linear decay.
+        current_t = t / (1 + iter / num_iters);
+        % Fixed learning rate alternative:
+        % current_t = t;
+
+        % Loop through all samples to update w and b.
+        for i = 1:m
+            xi = X(i, :)'; % Extract feature vector of the current sample.
+            yi = y(i);     % Extract label of the current sample.
+
+            % Check if the hinge loss condition yi * (w' * xi + b) >= 1 is satisfied.
+            if yi * (w' * xi + b) < 1
+                % Update w and b considering the misclassified case.
+                w = w - current_t * (lambda * w - yi * xi);
+                b = b - current_t * (-yi);
+            else
+                % Update w only with the regularization term.
+                w = w - current_t * lambda * w;
+                % b remains unchanged.
+            end
         end
-        
-        % 更新参数
-        w = w - t * w_grad;
-        b = b - t * b_grad;
-        w_list = [w_list, w];
-        b_list = [b_list, b];
-        
-        y_pre = svm_predict(w, b, X_test);
-        acc(iter) = svm_report(y_test, y_pre);
+
+        % Compute and store the current accuracy on the test set.
+        y_pred = svm_predict(w, b, X_test); % Custom prediction function.
+        acc(iter) = svm_report(y_test, y_pred); % Custom evaluation function.
     end
 end
