@@ -9,7 +9,6 @@ function [w, b, iter] = svm_centering(X, y, w, b, t, num_iters, step_size, tol)
 % tol: 
 
 [m, n] = size(X);
-% step_size = 0.01;
 
 % parameters for back line search
 alpha = 0.25;

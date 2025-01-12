@@ -21,7 +21,7 @@ b_res = [];
 % start iteration
 for iter = 1:num_iters
     % center step optimized using gradient descent
-    [w, b, func_iter] = svm_centering(X, y, w, b, t, num_iters, 0.01, 1e-5);
+    [w, b, func_iter] = svm_centering(X, y, w, b, t, num_iters, step_size / t, 1e-5);
     disp(w);
     disp(b);
     plot_svm_decision_boundary(X, y, w, b);
