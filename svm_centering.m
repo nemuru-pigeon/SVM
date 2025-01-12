@@ -9,8 +9,6 @@ function [w, b, iter] = svm_centering(X, y, w, b, t, num_iters, step_size, tol)
 % tol: 
 
 [m, n] = size(X);
-% w = zeros(n, 1);
-% b = 0;
 step_size = 0.01;
 
 alpha = 0.25;

@@ -1,4 +1,4 @@
-function [w, b, total_iter] = svm_barrier(X, y, t, mu, tol, num_iters, step_size)
+function [w, b, total_iter, w_res, b_res] = svm_barrier(X, y, t, mu, tol, num_iters, step_size)
 % X: 输入数据矩阵，每行是一个样本
 % y: 标签向量，元素为 -1 或 1
 % t: 
@@ -9,20 +9,27 @@ function [w, b, total_iter] = svm_barrier(X, y, t, mu, tol, num_iters, step_size
 
 % 初始化参数
 [m, n] = size(X);
-w = zeros(n, 1);
-b = 0;
+% w = zeros(n, 1);
+% b = 0;
+w = [5.17; -0.59];
+b = -2.33;
 total_iter = 0;
+w_res = [];
+b_res = [];
 
 % 优化过程
 for iter = 1:num_iters
     % 使用梯度下降法进行优化中心步骤
     disp(w);
     disp(b);
-    [w, b, func_iter] = svm_centering(X, y, w, b, t, num_iters, step_size, 1e-5);
+    [w, b, func_iter] = svm_centering(X, y, w, b, t, num_iters, step_size / t, 1e-5);
     disp(w);
     disp(b);
     plot_svm_decision_boundary(X, y, w, b);
     disp('------------');
+
+    w_res = [w_res; w'];
+    b_res = [b_res; b];
     total_iter = total_iter + func_iter;
 
     % 检查收敛
